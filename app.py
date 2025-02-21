@@ -7,9 +7,22 @@ import re
 # Configure page
 st.set_page_config(page_title="YouTube Comment Analyzer", layout="wide")
 
-# Retrieve API keys from secrets
-YOUTUBE_API_KEY = st.secrets["YOUTUBE_API_KEY"]
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+# Attempt to retrieve API keys from Streamlit Secrets
+YOUTUBE_API_KEY = st.secrets.get("YOUTUBE_API_KEY")
+OPENAI_API_KEY = st.secrets.get("OPENAI_API_KEY")
+
+# Sidebar: Fallback for API keys if not in secrets.toml
+with st.sidebar:
+    st.title("API Configuration")
+    if not YOUTUBE_API_KEY:
+        YOUTUBE_API_KEY = st.text_input("Enter YouTube API Key", type="password")
+    if not OPENAI_API_KEY:
+        OPENAI_API_KEY = st.text_input("Enter OpenAI API Key", type="password")
+
+# Ensure API keys are available
+if not YOUTUBE_API_KEY or not OPENAI_API_KEY:
+    st.warning("Please enter both API keys to proceed.")
+    st.stop()
 
 # Initialize APIs
 youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
